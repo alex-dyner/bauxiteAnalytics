@@ -1,6 +1,6 @@
 A small test application to show the capabilities of SQL in the solution of a sessionize events task.
 All data transformation operations are implemented in **pure SQL**.
-It is not completely type-safety, but it is important for fast code development.
+It is not completely type-safety...It's a sacrifice in favor of the speed of development.
 
 The application transforms the data into one of the possible modes.
 Supported modes:
