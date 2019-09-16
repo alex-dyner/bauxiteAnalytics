@@ -26,16 +26,17 @@ Note: if session has only one event then start time been an equal end time
 sbt assembly
 
 **For run locally use command pattern**
-java -Dspark.master=<master_option> -jar <SessionizedEvents|MedianSessionDurationByCategory|DurationHistogramByCategory|Top10ProductByCategory> <path to JAR file> <path to source event data>
+<br/>java -Dspark.master=<master_option> -jar <SessionizedEvents|MedianSessionDurationByCategory|DurationHistogramByCategory|Top10ProductByCategory> <path to JAR file> <path to source event data>
 
 Example: 
-java -Dspark.master=local[2] -jar /tmp/bauxiteAnalytics/app/bauxiteSalesReport-assembly-0.1.jar SessionizedEvents /tmp/bauxiteAnalytics/in/sample_of_input_data.csv /tmp/bauxiteAnalytics/out/SessionizedEvents/
-ls /tmp/bauxiteAnalytics/out/SessionizedEvents/
-cat /tmp/bauxiteAnalytics/out/SessionizedEvents//p*
+<br/>java -Dspark.master=local[2] -jar /tmp/bauxiteAnalytics/app/bauxiteSalesReport-assembly-0.1.jar SessionizedEvents /tmp/bauxiteAnalytics/in/sample_of_input_data.csv /tmp/bauxiteAnalytics/out/SessionizedEvents/
+<br/>ls /tmp/bauxiteAnalytics/out/SessionizedEvents/
+<br/>cat /tmp/bauxiteAnalytics/out/SessionizedEvents/p*
 
 **For run on cluster use command pattern**
-spark-submit --class com.bauxite.reporting.Main --master <master_definition> <path_to_JAR> <run_mode> <input_data> <output_data>
-Example:
+<br/>spark-submit --class com.bauxite.reporting.Main --master <master_definition> <path_to_JAR> <run_mode> <input_data> <output_data>
+
+<br/>Example:
 spark-submit --class com.bauxite.reporting.Main --master http://localhost:8080 /tmp/bauxiteSalesReport-assembly-0.1.jar MedianSessionDurationByCategory /tmp/data /tmp/out
 
 
