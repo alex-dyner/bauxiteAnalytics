@@ -1,9 +1,10 @@
 package com.bauxite.reporting.sessinizer
 
-import java.util.{UUID, Date}
+import java.util.{Date, UUID}
 import java.text.SimpleDateFormat
-import scala.math.{max, min}
 
+import scala.collection.mutable.ListBuffer
+import scala.math.{max, min}
 import org.apache.spark.sql.expressions.Aggregator
 import org.apache.spark.sql.{Encoder, Encoders}
 import com.bauxite.reporting.domain.{Event, EventWithSessionInfo}
@@ -42,29 +43,36 @@ class EventSessionAggregator extends Aggregator[Event, List[SessionAggregationBu
     }
   }
 
-  private def mergeSessionBuffers(inputBuffers: List[SessionAggregationBufferItem], prevResult: List[SessionAggregationBufferItem]) : List[SessionAggregationBufferItem] ={
-    inputBuffers match {
-      case first :: second :: tail if (first.sessionEndTs + 300 >= second.sessionStartTs) =>
-        mergeSessionBuffers(
-           SessionAggregationBufferItem(
-             first.events ++ second.events,
-             min(first.sessionStartTs, second.sessionStartTs),
-             max(first.sessionEndTs, second.sessionEndTs))
-             :: tail
-          ,prevResult
-        )
-      case bufItem :: tail => mergeSessionBuffers(tail, bufItem :: prevResult)
-      case Nil => prevResult
-    }
-  }
-
   override def merge(lBuffer: List[SessionAggregationBufferItem], rBuffer: List[SessionAggregationBufferItem]): List[SessionAggregationBufferItem] = {
     val allSessions: List[SessionAggregationBufferItem] = lBuffer ++ rBuffer
-    
     val sorted = allSessions.sortBy(r => (r.sessionStartTs, r.sessionEndTs))
 
-    val result = mergeSessionBuffers(sorted,  Nil)
-    return result
+    if (sorted == Nil)
+      return Nil
+
+    var baseSession = sorted.head
+    var otherSessions = sorted.tail
+
+    val result = new ListBuffer[SessionAggregationBufferItem]
+
+    while (otherSessions != Nil) {
+      val toMergeSession = otherSessions.head
+      otherSessions = otherSessions.tail
+
+      if (baseSession.sessionEndTs + 300 >= toMergeSession.sessionStartTs) {
+        baseSession = SessionAggregationBufferItem(
+          baseSession.events ++ toMergeSession.events
+          ,min(baseSession.sessionStartTs, toMergeSession.sessionStartTs)
+          ,max(baseSession.sessionEndTs, toMergeSession.sessionEndTs)
+        )
+      } else {
+        result.append(baseSession)
+        baseSession = toMergeSession
+      }
+    }
+
+    result.append(baseSession)
+    result.toList
   }
 
   private def castFromUnixTimeToISOString(unixTm: Long): String = {
