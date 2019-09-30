@@ -8,7 +8,7 @@ object Main {
       println(
         """
           |Usage: {command-to-start-app} {mode} {path-to-source-data} {path-to-result-dir}
-          |Mode = {SessionizedEvents||MedianSessionDurationByCategory|DurationHistogramByCategory|Top10ProductByCategory}
+          |Mode = {SessionizedEvents|SessionizedEventsViaSparkAgg|MedianSessionDurationByCategory|DurationHistogramByCategory|Top10ProductByCategory}
           |""".stripMargin
       )
       System.exit(1)
