@@ -108,6 +108,7 @@ class ReportDataProcessor(sparkSession: SparkSession) {
    * @param eventData Source event date.
    * @param sessionKeys List of dimension field names.
    * @return Dataset with deminsions + session information (session_id, session_start_ts, session_end_ts).
+   * @note
    */
   def getHardBorderSessions(eventData: DataFrame, sessionKeys: Seq[String]): Dataset[Row] = {
     eventData.createOrReplaceTempView("events")
@@ -150,6 +151,13 @@ class ReportDataProcessor(sparkSession: SparkSession) {
     result
   }
 
+
+  /**
+   * Compute list of session from raw events.
+   * @param eventData Source events.
+   * @param sessionKeys List of session dimension.
+   * @return Dataset with following structure - Dimension + session_id + session_start_ts + session_end_ts
+   */
   def getSessions(eventData: DataFrame, sessionKeys: Seq[String]): Dataset[Row] = {
     val draftSessions = getHardBorderSessions(eventData, sessionKeys)
     draftSessions.createOrReplaceTempView("sessions")
@@ -158,6 +166,7 @@ class ReportDataProcessor(sparkSession: SparkSession) {
     val keyJoinCondition = sessionKeys.map(columnName => "s." + columnName + " = e." + columnName).mkString(" AND ")
     val keyCols = sessionKeys.map(colName => "s." + colName).mkString(",")
 
+    //TODO: change SQL - use an. window function instead of join
     val sqlText = """
                     |SELECT
                     |     {key_cols}
@@ -184,6 +193,12 @@ class ReportDataProcessor(sparkSession: SparkSession) {
     sparkSession.sql(sqlText)
   }
 
+  /**
+   * Compute session info for each user event
+   * @param eventData Raw event data
+   * @param sessionKeys List of session dimension
+   * @return Input data with 3 extra field - session_id, session_start_ts, session_end_ts
+   */
   def getSessionizedEvents(eventData: DataFrame, sessionKeys: Seq[String]): Dataset[Row] = {
     val draftSessions = getHardBorderSessions(eventData, sessionKeys)
 

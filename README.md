@@ -13,7 +13,8 @@ Supported modes:
     - session end time - string image of session end timestamp (with ISO 8601 format) 
     
 Note: if session has only one event then start time been an equal end time
-    
+
+- EventSessionAggregator - the same as mode "SessionizedEvents" but use another algo
     
 - MedianSessionDurationByCategory - for each category find median session (by normal session definition) duration 
 

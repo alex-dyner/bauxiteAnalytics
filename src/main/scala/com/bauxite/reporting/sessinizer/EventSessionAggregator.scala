@@ -10,7 +10,6 @@ import com.bauxite.reporting.domain.{Event, EventWithSessionInfo}
 
 class EventSessionAggregator extends Aggregator[Event, List[SessionAggregationBufferItem], List[EventWithSessionInfo]] {
 
-
   override def zero: List[SessionAggregationBufferItem] = List.empty
   //TODO: review performance after first runs - think about replace plain list to more smart container (better for search in reduce and merge)
 

@@ -2,8 +2,15 @@ package com.bauxite.reporting
 
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
+/**
+ * Event data structure keeper.
+ */
 object EventDataStructureInfo {
 
+  /**
+   * Provides event data structure
+   * @return
+   */
   def getEventSchema(): StructType = {
     StructType(
       Array(
