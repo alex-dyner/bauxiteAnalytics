@@ -60,8 +60,7 @@ class EventSessionAggregator extends Aggregator[Event, List[SessionAggregationBu
 
   override def merge(lBuffer: List[SessionAggregationBufferItem], rBuffer: List[SessionAggregationBufferItem]): List[SessionAggregationBufferItem] = {
     val allSessions: List[SessionAggregationBufferItem] = lBuffer ++ rBuffer
-
-    //TODO: think about to change sort condition
+    
     val sorted = allSessions.sortBy(r => (r.sessionStartTs, r.sessionEndTs))
 
     val result = mergeSessionBuffers(sorted,  Nil)
