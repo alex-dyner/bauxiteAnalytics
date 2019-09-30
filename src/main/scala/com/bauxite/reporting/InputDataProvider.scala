@@ -1,6 +1,7 @@
 package com.bauxite.reporting
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 class InputDataProvider(sparkSession: SparkSession) {
 
@@ -14,4 +15,5 @@ class InputDataProvider(sparkSession: SparkSession) {
       .schema(schema)
       .load(path)
   }
+
 }

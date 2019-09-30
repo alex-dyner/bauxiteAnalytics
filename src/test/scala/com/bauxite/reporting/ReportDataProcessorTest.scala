@@ -7,7 +7,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 
-class ReportDataProcessorTest extends FunSuite with Matchers with BeforeAndAfter {
+class ReportDataProcessorTest extends FunSuite with Matchers with BeforeAndAfter with PrivateMethodTester {
 
   var sparkSession: SparkSession = _
 
@@ -46,9 +46,7 @@ class ReportDataProcessorTest extends FunSuite with Matchers with BeforeAndAfter
     val eventCount = getTestEventData().size
     outputData.length shouldBe eventCount
 
-    val keyColsExtr: Seq[String] = List("user_id", "category", "product")
-
-    val eventSessionizedWithProductDF = sessionizer.getSessionizedEvents(df, keyColsExtr)
+    val eventSessionizedWithProductDF = sessionizer.getSessionizedEvents(df, List("user_id", "category", "product"))
     val eventSessionizedWithProduct = eventSessionizedWithProductDF.collect()
 
     eventSessionizedWithProductDF.schema shouldBe expectedOutputSchema
@@ -149,10 +147,12 @@ class ReportDataProcessorTest extends FunSuite with Matchers with BeforeAndAfter
     val df = getTestEventDF
 
     val sessionizer = new ReportDataProcessor(sparkSession)
-    val keyCols: Seq[String] = List("user_id", "category")
-    val hardBorderSessions = sessionizer.getHardBorderSessions(df, keyCols).collect()
+    val method = PrivateMethod[Dataset[Row]]('getHardBorderSessions)
 
-    val mappedSessions: Map[String, Row] = hardBorderSessions.map(r => (r.getString(0), r)).toMap
+    val outputDataset = sessionizer.invokePrivate(method(df, List("user_id", "category")))
+    val output = outputDataset.collect()
+
+    val mappedSessions: Map[String, Row] = output.map(r => (r.getString(0), r)).toMap
 
     mappedSessions.size shouldBe 10
 
